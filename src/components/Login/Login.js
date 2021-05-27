@@ -15,11 +15,11 @@ const emailReducer = (state, action) => {
 };
 
 const passwordReducer = (state, action) => {
-  if (action.type === "USER_INPUT") {
-    return { value: action.val, isValid: action.val.includes('@')};
+  if (action.type === "USER_INPUT") { 
+    return { value: action.val, isValid: action.val.trim().length > 6};
   }
   if (action.type === "INPUT_INPUT") {
-    return { value: state.value, isValid: state.value.includes('@')};
+    return { value: state.value, isValid: state.value.trim().length > 6};
   }
   return { value: "", isValid: false };
 };
@@ -46,32 +46,39 @@ const Login = (props) => {
     console.log("EFFECT RUNNING");
   });
 
-  // useEffect(() => {
-  //   // debouncing
-  //   // check after a certain amount of time that user stop typing
-  //   const identifier = setTimeout(() => {
-  //     // check for valid email
-  //     setFormIsValid(
-  //       enteredEmail.includes("@") && enteredPassword.trim().length > 6
-  //     );
+  // object deconstructing 
+  // so that we pass specific properties 
+  // instead of the entire object as a dependency 
+  const {isValid: emailIsValid} = emailState;
+  const {isValid: passwordIsValid} = passwordState;
 
-  //     // cleanup function
-  //     // run before the rest of the function runs
-  //     return () => {
-  //       console.log("clean up!");
-  //       clearTimeout(identifier);
-  //     };
-  //   }, 500);
 
-  //   // will reevaluate if there's any changes in any of following fields
-  // }, [enteredEmail, enteredPassword]);
+  useEffect(() => {
+    // debouncing
+    // check after a certain amount of time that user stop typing
+    const identifier = setTimeout(() => {
+      // check for valid email
+      console.log('Checking for validity!');
+      setFormIsValid(
+        emailState.isValid && passwordState.isValid
+      )}, 500);
+
+      // cleanup function
+      // run before the rest of the function runs
+      return () => {
+        console.log("clean up!");
+        clearTimeout(identifier);
+      };
+    }, [emailIsValid, passwordIsValid]);
+
+    // will reevaluate if there's any changes in any of following fields
 
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "USER_INPUT", val: event.target.value });
 
-    setFormIsValid(
-      event.target.value.includes("@") && passwordState.isValid
-    );
+    // setFormIsValid(
+    //   event.target.value.includes("@") && passwordState.isValid
+    // );
   };
 
   const passwordChangeHandler = (event) => {
